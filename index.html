@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>Plane-02</title>
+  <script type="text/javascript" src="app.js"></script></head>
+  <body>
+
+    <script>
+      AFRAME.registerComponent('mythreejsthing', {
+        schema: {
+          color: {
+            default: '#000'
+          },
+        },
+      
+        update: function() {
+          var material = new THREE.MeshBasicMaterial({
+            color: this.data.color,
+            wireframe: true
+          });
+      
+          var geometry = new THREE.BoxGeometry(1, 1, 1);
+      
+          this.el.setObject3D('mesh', new THREE.Mesh(geometry, material));
+        },
+      
+        remove: function() {
+          this.el.removeObject3D('mesh');
+        }
+      });
+      </script>
+      
+    <a-scene id="scene" vr-mode-ui="enabled: true" physics="gravity:-9.6" fog="type: linear; color: #102d3f; far: 40; near: 0">
+      <a-assets>
+        <!-- ASSETS -->
+        <img id="piggy" src="assets/npc_piggy_explorer.png">
+        <img id="road" src="assets/texa/heart-shuffle-side.gif" >
+
+        <!-- GEOMETRY -->
+
+
+        <!-- INTERACTIONS + PHYSICS -->
+        <a-mixin id="mycursor" position="0 0 -0.5" raycaster geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005; segmentsTheta: 32" material="color: white; shader: flat" static-body="shape: sphere; sphereRadius: 0.001" ></a-mixin>
+    
+      </a-assets>
+
+      <!-- SKY -->
+      <a-sky color="#3c374d" theta-length="90" radius="40"></a-sky>
+
+      <!-- RUNWAY POSITION -->
+      <a-curve id="runway">
+        <a-curve-point position="0 0 0"></a-curve-point>
+        <a-curve-point position="0 0 16"></a-curve-point>
+      </a-curve>
+
+      <!-- RUNWAY DESIGN -->
+      <a-entity id="ground" alongpath="curve:#runway; loop:true; dur: 10000;">
+        <a-cylinder radius="60" height="0" material="color: #000;"></a-cylinder>
+        <a-box color="#f4b2b8" position="-4 0 0" depth="0.1" rotation="0 90 0" height="0" width="100"></a-box>
+        <a-box color="#f4b2b8" position="4 0 0" depth="0.1" rotation="0 90 0" height="0" width="100"></a-box>
+        <a-box color="#f4b2b8" position="-5 0 0" depth="0.1" rotation="0 90 0" height="0" width="100"></a-box>
+        <a-box color="#f4b2b8" position="5 0 0" depth="0.1" rotation="0 90 0" height="0" width="100"></a-box>
+        <a-box position="0 0 0" depth="5" rotation="0 90 0" height="0" width="50" material="shader: gif; src:#road;"></a-box>
+        <a-box position="0 0 40" depth="5" rotation="0 90 0" height="0" width="50"  material="shader: gif; src:#road;"></a-box>
+        <a-box position="0 0 -40" depth="5" rotation="0 90 0" height="0" width="50"  material="shader: gif; src:#road;"></a-box>
+      </a-entity>
+
+      <!-- SPRITE -->
+      <a-entity mythreejsthing="color: green;">
+        <a-animation attribute="position" from="-0.5 2 -3.25" to="0.5 2 -3.5" dur="2500" direction="alternate" repeat="indefinite"></a-animation>
+      </a-entity>   
+
+      <a-image src="#piggy" sprite-sheet="cols:8; rows: 3; progress: 0;"
+      position="0 1 -5">
+        <a-animation attribute="position" from="-0.5 2 -3.25" to="0.5 2 -3.5" dur="2500" direction="alternate" repeat="indefinite"></a-animation>
+      </a-image>
+
+      <!-- CAMERA RIG -->
+      <a-entity id="cameraRig">
+        <!-- SETTINGS FOR TELEPORT-CONTROLS AND SUPER-HANDS -->
+        <a-entity id="head" progressive-controls="gazeMixin: mycursor; touchMixin: mytouch; override: true; maxLevel: point;" position="0 1 0.75"></a-entity>
+
+      </a-entity><!-- END CAMERA RIG -->
+
+    </a-scene>
+
+    <!-- SPRITE ANIMATION LOOP -->
+    <script type="text/javascript">
+      var animation = { progress: 0 };
+
+      var tween = new TWEEN.Tween(animation)
+          .to({ progress: 1 }, 1000)
+          .onUpdate(function(){
+              document.querySelector('a-image').setAttribute('sprite-sheet', 'progress', animation.progress);
+          });
+
+      tween.onComplete(function() { animation.progress = 0; });
+      tween.chain(tween);
+      tween.start();
+  </script>
+
+   </body>
+</html>
